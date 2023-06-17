@@ -1,0 +1,29 @@
+import "c";
+import "oat";
+
+let SCREEN_W: sint = 640;
+let SCREEN_H: sint = 480;
+let TIMESTEP: f64 = 1.0 / 60.0;
+
+func main() void {
+    oat_init(SCREEN_W, SCREEN_H, startof("game"));
+    defer oat_fini();
+
+    var time: double = 0.0;
+    var prev: double = 0.0;
+    for not oat_get_quit_requested() {
+        var now: double = oat_now();
+        time = time + (now - prev);
+        prev = now;
+        if time <= TIMESTEP {
+            continue;
+        }
+        time = time - TIMESTEP;
+
+        oat_draw_clear(0xFF, 0xFF, 0xFF);
+
+        # PER-FRAME CODE GOES HERE
+
+        oat_end_frame();
+    }
+}

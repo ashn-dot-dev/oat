@@ -1,0 +1,35 @@
+#!/bin/sh
+set -eu
+
+PROGNAME=$(basename "$0")
+usage() {
+    cat <<EOF
+Usage: ${PROGNAME} [--cflags] [--libs]
+EOF
+}
+
+if [ "$#" -eq 0 ]; then
+    usage 1>&2
+    exit 1
+fi
+
+for arg in "$@"; do
+case "${arg}" in
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    --cflags)
+        echo "$(sdl2-config --cflags)"
+        shift
+        ;;
+    --libs)
+        echo "-loat $(sdl2-config --libs) -lSDL2_image -lSDL2_mixer -lSDL2_ttf"
+        shift
+        ;;
+    *)
+        echo "unknown option: ${arg}" 2>&1
+        exit 1
+        ;;
+esac
+done
