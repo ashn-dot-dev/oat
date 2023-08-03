@@ -4,8 +4,10 @@
 	all \
 	examples \
 	install \
+	install-c++ \
 	install-sunder \
 	uninstall \
+	uninstall-c++ \
 	uninstall-sunder \
 	format \
 	clean
@@ -25,6 +27,9 @@ examples: examples/demo examples/demo.html
 
 liboat.a: oat.o
 	$(AR) rcs $@ $<
+
+oat.hpp: oat.h
+	sh bindings/c++.sh >$@
 
 oat.sunder: oat.h
 	python3 bindings/sunder.py oat.h >$@
@@ -51,6 +56,9 @@ install: liboat.a
 	install -m 644 liboat.a $(DESTDIR)$(PREFIX)/lib
 	install -m 755 oat-config $(DESTDIR)$(PREFIX)/bin
 
+install-c++: oat.hpp install
+	install -m 644 oat.hpp $(DESTDIR)$(PREFIX)/include
+
 install-sunder: oat.sunder
 	mkdir -p "$(SUNDER_HOME)/lib/oat"
 	cp oat.h "$(SUNDER_HOME)/lib/oat"
@@ -64,6 +72,9 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/lib/liboat.a
 	rm -f $(DESTDIR)$(PREFIX)/bin/oat-config
 
+uninstall-c++: uninstall
+	rm -f $(DESTDIR)$(PREFIX)/include/oat.hpp
+
 uninstall-sunder:
 	rm -rf "$(SUNDER_HOME)/lib/oat"
 
@@ -71,6 +82,7 @@ format:
 	clang-format -i *.c examples/*.c templates/c99/*.c
 
 clean:
+	rm -f oat.hpp
 	rm -f oat.sunder
 	rm -f examples/demo
 	rm -f examples/demo.html
