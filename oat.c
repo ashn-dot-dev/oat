@@ -1999,6 +1999,7 @@ oat_font_del(struct oat_font* self)
         TTF_CloseFont(self->cached_start[i].font);
     }
     oat_xalloc(self->cached_start, OAT_XALLOC_FREE);
+    oat_xalloc(self->ttf_buf_start, OAT_XALLOC_FREE);
 
     SDL_memset(self, 0x00, sizeof(*self)); // scrub
     oat_xalloc(self, OAT_XALLOC_FREE);
