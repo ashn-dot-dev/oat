@@ -26,7 +26,6 @@
 #define MARGIN 4
 
 static double const PI = 3.14159265358979323846;
-static double const TIMESTEP = 1.0 / 60.0;
 
 static void
 randomize_pixel_colors(struct oat_sprite* dvd)
@@ -102,16 +101,9 @@ main(void)
     struct oat_sound* const bump =
         oat_sound_new(assets_Bump_ogg, (size_t)assets_Bump_ogg_len);
 
-    double time = 0.0;
-    double prev = 0.0;
+    oat_set_target_fps(60);
     while (!oat_get_quit_requested()) {
         double const now = oat_now();
-        time += now - prev;
-        prev = now;
-        if (time <= TIMESTEP) {
-            continue;
-        }
-        time -= TIMESTEP;
 
         if (oat_key_is_pressed(oat_key_escape())) {
             oat_set_quit_requested(true);

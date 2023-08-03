@@ -197,6 +197,9 @@ static struct oat_context {
     Uint32 fullscreen; // SDL_SetWindowFullscreen flags
     bool quit_requested;
 
+    int target_fps;
+    double frame_start;
+
     struct oat_key keys[OAT_KEY_COUNT];
     struct oat_mouse_button mouse_buttons[OAT_MOUSE_BUTTON_COUNT];
 } oat_context = {0};
@@ -606,6 +609,12 @@ oat_get_quit_requested(void)
     return oat_context.quit_requested;
 }
 
+void
+oat_set_target_fps(int value)
+{
+    oat_context.target_fps = value >= 0 ? value : 0;
+}
+
 double
 oat_now(void)
 {
@@ -695,6 +704,23 @@ oat_end_frame(void)
         oat_context.mouse_buttons[i].single_click = false;
         oat_context.mouse_buttons[i].double_click = false;
     }
+
+    // If a target FPS has been set, wait until (1 / TARGET_FPS) seconds have
+    // elapsed before starting the next frame.
+    double now = oat_now();
+    if (oat_context.target_fps != 0) {
+        double const timestep = 1.0 / (double)oat_context.target_fps;
+        double elapsed = now - oat_context.frame_start;
+        // SDL_Delay has millisecond granularity, but may take longer due to OS
+        // scheduling. This granularity is far too coarse for per-frame timing,
+        // so a busy loop is used.
+        while (elapsed < timestep) {
+            elapsed = (now = oat_now()) - oat_context.frame_start;
+        }
+    }
+
+    // Begin the next frame.
+    oat_context.frame_start = now;
 
     // Process input state for the next frame.
     SDL_Event event;

@@ -26,6 +26,8 @@ bool oat_get_fullscreen(void);
 void oat_set_quit_requested(bool value);
 bool oat_get_quit_requested(void);
 
+void oat_set_target_fps(int value);
+
 double oat_now(void);
 void oat_seed_random_u32(uint64_t seed);
 void oat_seed_random_u64(uint64_t seed_a, uint64_t seed_b);
