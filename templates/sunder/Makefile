@@ -11,16 +11,15 @@ TARGET=game
 EMCC = emcc
 EMCFLAGS = \
 	$(CFLAGS) \
+	$$($(SUNDER_HOME)/lib/oat/oat-config --emcflags) \
 	-I$(SUNDER_HOME)/lib/oat \
-	-sASSERTIONS -sASYNCIFY -sSINGLE_FILE=1 \
-	-sUSE_SDL=2 -sUSE_SDL_IMAGE=2 -sUSE_SDL_MIXER=2 -sUSE_SDL_TTF=2 \
-	-sSDL2_IMAGE_FORMATS=[png] \
+	-sSINGLE_FILE=1 \
 	--shell-file $(SUNDER_HOME)/lib/oat/emscripten-shell.html
 
 all: build build-web
 
 build:
-	SUNDER_CFLAGS="$$(oat-config --cflags)" \
+	SUNDER_CFLAGS="$(CFLAGS) $$(oat-config --cflags)" \
 	sunder-compile -o $(TARGET) $$(oat-config --libs) main.sunder
 
 build-web:

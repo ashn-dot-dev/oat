@@ -15,9 +15,8 @@ PREFIX = /usr/local
 EMCC = emcc
 EMCFLAGS = \
 	$(CFLAGS) \
-	-sASSERTIONS -sASYNCIFY -sSINGLE_FILE=1 \
-	-sUSE_SDL=2 -sUSE_SDL_IMAGE=2 -sUSE_SDL_MIXER=2 -sUSE_SDL_TTF=2 \
-	-sSDL2_IMAGE_FORMATS='["png"]' \
+	$$(oat-config --emcflags) \
+	-sSINGLE_FILE=1 \
 	--shell-file emscripten-shell.html
 
 all: liboat.a
@@ -57,6 +56,7 @@ install-sunder: oat.sunder
 	cp oat.h "$(SUNDER_HOME)/lib/oat"
 	cp oat.c "$(SUNDER_HOME)/lib/oat"
 	cp oat.sunder "$(SUNDER_HOME)/lib/oat"
+	cp oat-config "$(SUNDER_HOME)/lib/oat"
 	cp emscripten-shell.html "$(SUNDER_HOME)/lib/oat"
 
 uninstall:
