@@ -27,6 +27,7 @@ void oat_set_quit_requested(bool value);
 bool oat_get_quit_requested(void);
 
 void oat_set_target_fps(int value);
+double oat_get_fps(void);
 
 double oat_now(void);
 void oat_seed_random_u32(uint64_t seed);

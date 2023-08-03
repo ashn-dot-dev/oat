@@ -197,8 +197,11 @@ static struct oat_context {
     Uint32 fullscreen; // SDL_SetWindowFullscreen flags
     bool quit_requested;
 
+    size_t frame_count; // Number of frames rendered to the screen.
+    double frame_begin; // Start time of the current frame.
+#define OAT_FRAME_TIME_CAPTURES_COUNT 30
+    double frame_time_captures[OAT_FRAME_TIME_CAPTURES_COUNT];
     int target_fps;
-    double frame_start;
 
     struct oat_key keys[OAT_KEY_COUNT];
     struct oat_mouse_button mouse_buttons[OAT_MOUSE_BUTTON_COUNT];
@@ -616,6 +619,25 @@ oat_set_target_fps(int value)
 }
 
 double
+oat_get_fps(void)
+{
+    if (oat_context.frame_count == 0) {
+        return 0.0;
+    }
+
+    double time = 0.0;
+    size_t const count =
+        (oat_context.frame_count < OAT_FRAME_TIME_CAPTURES_COUNT)
+        ? oat_context.frame_count
+        : OAT_FRAME_TIME_CAPTURES_COUNT;
+    for (size_t i = 0; i < count; ++i) {
+        time += oat_context.frame_time_captures[i];
+    }
+
+    return count / time;
+}
+
+double
 oat_now(void)
 {
     Uint64 const now = SDL_GetPerformanceCounter();
@@ -692,6 +714,7 @@ oat_end_frame(void)
 {
     // Render the frame.
     SDL_RenderPresent(oat_context.renderer);
+    oat_context.frame_count += 1;
 
     // Clear input state from the previous frame.
     for (size_t i = 0; i < (size_t)OAT_KEY_COUNT; ++i) {
@@ -708,19 +731,23 @@ oat_end_frame(void)
     // If a target FPS has been set, wait until (1 / TARGET_FPS) seconds have
     // elapsed before starting the next frame.
     double now = oat_now();
+    double elapsed = now - oat_context.frame_begin;
     if (oat_context.target_fps != 0) {
         double const timestep = 1.0 / (double)oat_context.target_fps;
-        double elapsed = now - oat_context.frame_start;
         // SDL_Delay has millisecond granularity, but may take longer due to OS
         // scheduling. This granularity is far too coarse for per-frame timing,
         // so a busy loop is used.
         while (elapsed < timestep) {
-            elapsed = (now = oat_now()) - oat_context.frame_start;
+            elapsed = (now = oat_now()) - oat_context.frame_begin;
         }
     }
 
+    // Record the elapsed time for the previous frame.
+    size_t const idx = oat_context.frame_count % OAT_FRAME_TIME_CAPTURES_COUNT;
+    oat_context.frame_time_captures[idx] = elapsed;
+
     // Begin the next frame.
-    oat_context.frame_start = now;
+    oat_context.frame_begin = now;
 
     // Process input state for the next frame.
     SDL_Event event;

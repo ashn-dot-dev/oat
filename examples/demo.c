@@ -312,6 +312,8 @@ main(void)
             oat_mouse_get_x(),
             oat_mouse_get_y());
         oat_draw_text(buf, OFFSET, 16 * 13, font, 16, 0x00, 0x00, 0x00, 0xFF);
+        snprintf(buf, sizeof(buf), "FPS: %0.2f", oat_get_fps());
+        oat_draw_text(buf, OFFSET, 16 * 15, font, 16, 0x00, 0x00, 0x00, 0xFF);
 
         oat_draw_text(
             hello_text, hello_x, hello_y, font, 32, 0x00, 0x00, 0x00, 0xFF);
